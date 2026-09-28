@@ -8,15 +8,19 @@ export function usePFZ(lat: number, lon: number) {
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       setData(await api.pfz(lat, lon));
     } catch (e: any) {
       setError(e.message);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, [lat, lon]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
   return { data, loading, error, refetch: fetch };
 }
-

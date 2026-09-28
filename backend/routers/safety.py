@@ -13,17 +13,21 @@ VESSEL_TYPES = ["small", "country", "mechanized", "large"]
 async def get_safety_score(
     lat: float = Query(..., ge=5, le=25),
     lon: float = Query(..., ge=60, le=100),
-    vessel_type: str = Query("mechanized", description="small | country | mechanized | large"),
+    vessel_type: str = Query(
+        "mechanized", description="small | country | mechanized | large"
+    ),
 ):
     """
     Computes real-time vessel safety score (0-100) using live ocean data.
     Returns conditions breakdown, recommendation, and 24h safety forecast.
     """
     if vessel_type not in VESSEL_TYPES:
-        raise HTTPException(status_code=422, detail=f"vessel_type must be one of {VESSEL_TYPES}")
+        raise HTTPException(
+            status_code=422, detail=f"vessel_type must be one of {VESSEL_TYPES}"
+        )
     try:
         ocean = await fetch_ocean_conditions(lat, lon)
-        geo   = check_geofence(lat, lon)
+        geo = check_geofence(lat, lon)
         safety = compute_safety_score(ocean, vessel_type)
 
         return {

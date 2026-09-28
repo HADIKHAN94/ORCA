@@ -1,8 +1,8 @@
-import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
-import { Sidebar } from '../components/Sidebar';
-import { Topbar } from '../components/Topbar';
-import { useRole } from '../context/RoleContext';
+import React from "react";
+import { Outlet, Navigate } from "react-router-dom";
+import { Sidebar } from "../components/Sidebar";
+import { Topbar } from "../components/Topbar";
+import { useRole } from "../context/RoleContext";
 
 export const AppShell: React.FC = () => {
   const { role } = useRole();

@@ -1,10 +1,15 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { RoleProvider } from './context/RoleContext';
-import { LandingPage } from './pages/LandingPage';
-import { RoleSelection } from './pages/RoleSelection';
-import { AppShell } from './layouts/AppShell';
-import { RoleDashboardProxy } from './pages/RoleDashboardProxy';
-import { Copilot } from './pages/Copilot';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { RoleProvider } from "./context/RoleContext";
+import { LandingPage } from "./pages/LandingPage";
+import { RoleSelection } from "./pages/RoleSelection";
+import { AppShell } from "./layouts/AppShell";
+import { RoleDashboardProxy } from "./pages/RoleDashboardProxy";
+import { Copilot } from "./pages/Copilot";
 
 function App() {
   return (

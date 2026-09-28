@@ -8,15 +8,20 @@ export function useAlerts(lat: number, lon: number) {
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       setData(await api.alerts(lat, lon));
     } catch (e: any) {
       setError(e.message);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, [lat, lon]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
   // Auto-refresh every 5 minutes
   useEffect(() => {
     const id = setInterval(fetch, 5 * 60 * 1000);
@@ -25,4 +30,3 @@ export function useAlerts(lat: number, lon: number) {
 
   return { data, loading, error, refetch: fetch };
 }
-

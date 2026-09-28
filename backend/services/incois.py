@@ -11,6 +11,7 @@ Since INCOIS HTML structure can be unstable, we use a 3-layer approach:
 
 Chlorophyll: INCOIS ERDDAP (IRS P4 OCM satellite).
 """
+
 import httpx
 import asyncio
 import json
@@ -20,41 +21,57 @@ from geopy.distance import geodesic
 from cache import pfz_cache, chlorophyll_cache, cache_key
 
 INCOIS_ADVISORY = "https://iioe-2.incois.gov.in/MarineFisheries/PfzAdvisory.action"
-INCOIS_ERDDAP = "https://erddap.incois.gov.in/erddap/griddap/IRS_chlorophyll_datasets.json"
+INCOIS_ERDDAP = (
+    "https://erddap.incois.gov.in/erddap/griddap/IRS_chlorophyll_datasets.json"
+)
 
 # Known landing centres with nearby seasonal PFZ coordinates (from INCOIS literature)
 # Used as scientifically valid seeds when live scraping fails
 KNOWN_PFZ_DATABASE = {
     # Maharashtra
-    "ratnagiri":  [(17.18, 72.98, "HIGH", ["Sardine", "Mackerel"], "20-60m"),
-                   (16.80, 72.75, "MEDIUM", ["Pomfret", "Tuna"], "40-80m")],
-    "mumbai":     [(18.95, 72.20, "MEDIUM", ["Pomfret", "Croaker"], "30-60m"),
-                   (19.40, 71.85, "HIGH", ["Sardine", "Mackerel"], "20-50m")],
-    "alibag":     [(18.55, 72.50, "MEDIUM", ["Pomfret"], "25-55m")],
-    # Kerala  
-    "kochi":      [(9.75, 75.80, "HIGH", ["Sardine", "Mackerel", "Anchovy"], "10-40m"),
-                   (10.20, 75.50, "MEDIUM", ["Tuna", "Pomfret"], "50-100m")],
-    "kozhikode":  [(11.45, 75.50, "HIGH", ["Sardine", "Anchovies"], "15-45m")],
+    "ratnagiri": [
+        (17.18, 72.98, "HIGH", ["Sardine", "Mackerel"], "20-60m"),
+        (16.80, 72.75, "MEDIUM", ["Pomfret", "Tuna"], "40-80m"),
+    ],
+    "mumbai": [
+        (18.95, 72.20, "MEDIUM", ["Pomfret", "Croaker"], "30-60m"),
+        (19.40, 71.85, "HIGH", ["Sardine", "Mackerel"], "20-50m"),
+    ],
+    "alibag": [(18.55, 72.50, "MEDIUM", ["Pomfret"], "25-55m")],
+    # Kerala
+    "kochi": [
+        (9.75, 75.80, "HIGH", ["Sardine", "Mackerel", "Anchovy"], "10-40m"),
+        (10.20, 75.50, "MEDIUM", ["Tuna", "Pomfret"], "50-100m"),
+    ],
+    "kozhikode": [(11.45, 75.50, "HIGH", ["Sardine", "Anchovies"], "15-45m")],
     "trivandrum": [(8.30, 76.60, "MEDIUM", ["Sardine", "Mackerel"], "20-50m")],
     # Tamil Nadu
-    "chennai":    [(13.20, 80.60, "MEDIUM", ["Sardine", "Croaker"], "30-70m"),
-                   (12.60, 80.30, "HIGH", ["Mackerel", "Anchovy"], "20-50m")],
-    "tuticorin":  [(8.60, 78.50, "HIGH", ["Tuna", "Sardine"], "40-80m")],
+    "chennai": [
+        (13.20, 80.60, "MEDIUM", ["Sardine", "Croaker"], "30-70m"),
+        (12.60, 80.30, "HIGH", ["Mackerel", "Anchovy"], "20-50m"),
+    ],
+    "tuticorin": [(8.60, 78.50, "HIGH", ["Tuna", "Sardine"], "40-80m")],
     # Karnataka
-    "mangalore":  [(13.00, 74.40, "HIGH", ["Sardine", "Mackerel"], "20-60m"),
-                   (12.50, 74.10, "MEDIUM", ["Tuna", "Pomfret"], "50-100m")],
+    "mangalore": [
+        (13.00, 74.40, "HIGH", ["Sardine", "Mackerel"], "20-60m"),
+        (12.50, 74.10, "MEDIUM", ["Tuna", "Pomfret"], "50-100m"),
+    ],
     # Goa
-    "panaji":     [(15.60, 73.50, "MEDIUM", ["Sardine", "Pomfret"], "25-60m")],
+    "panaji": [(15.60, 73.50, "MEDIUM", ["Sardine", "Pomfret"], "25-60m")],
     # Andhra Pradesh
-    "visakhapatnam": [(17.60, 83.60, "HIGH", ["Sardine", "Mackerel"], "20-60m"),
-                      (17.00, 83.20, "MEDIUM", ["Tuna", "Pomfret"], "40-80m")],
+    "visakhapatnam": [
+        (17.60, 83.60, "HIGH", ["Sardine", "Mackerel"], "20-60m"),
+        (17.00, 83.20, "MEDIUM", ["Tuna", "Pomfret"], "40-80m"),
+    ],
     # Gujarat
-    "veraval":    [(20.90, 70.20, "HIGH", ["Sardine", "Pomfret"], "20-50m"),
-                   (21.30, 69.80, "MEDIUM", ["Tuna", "Croaker"], "40-80m")],
+    "veraval": [
+        (20.90, 70.20, "HIGH", ["Sardine", "Pomfret"], "20-50m"),
+        (21.30, 69.80, "MEDIUM", ["Tuna", "Croaker"], "40-80m"),
+    ],
     # Odisha
-    "paradip":    [(20.30, 86.70, "MEDIUM", ["Sardine", "Mackerel"], "25-60m")],
+    "paradip": [(20.30, 86.70, "MEDIUM", ["Sardine", "Mackerel"], "25-60m")],
     # West Bengal
-    "digha":      [(21.62, 87.45, "MEDIUM", ["Hilsa", "Pomfret"], "20-50m")],
+    "digha": [(21.62, 87.45, "MEDIUM", ["Hilsa", "Pomfret"], "20-50m")],
 }
 
 MONSOON_MONTHS = {6, 7}  # June, July — PFZ not issued
@@ -90,14 +107,32 @@ def _nearest_port(lat: float, lon: float) -> str:
 
 def _compute_bearing(lat1, lon1, lat2, lon2) -> tuple[float, str]:
     import math
+
     dlon = math.radians(lon2 - lon1)
     lat1r, lat2r = math.radians(lat1), math.radians(lat2)
     x = math.sin(dlon) * math.cos(lat2r)
-    y = (math.cos(lat1r) * math.sin(lat2r) -
-         math.sin(lat1r) * math.cos(lat2r) * math.cos(dlon))
+    y = math.cos(lat1r) * math.sin(lat2r) - math.sin(lat1r) * math.cos(
+        lat2r
+    ) * math.cos(dlon)
     bearing = (math.degrees(math.atan2(x, y)) + 360) % 360
-    dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE",
-            "S","SSW","SW","WSW","W","WNW","NW","NNW"]
+    dirs = [
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
+    ]
     label = dirs[round(bearing / 22.5) % 16]
     return round(bearing, 1), label
 
@@ -119,7 +154,11 @@ async def fetch_chlorophyll(lat: float, lon: float) -> float:
         data = r.json()
         rows = data.get("table", {}).get("rows", [[]])
         vals = [row[-1] for row in rows if row and row[-1] is not None]
-        chl = round(float(sum(vals) / len(vals)), 2) if vals else _estimate_chlorophyll(lat, lon)
+        chl = (
+            round(float(sum(vals) / len(vals)), 2)
+            if vals
+            else _estimate_chlorophyll(lat, lon)
+        )
     except Exception:
         chl = _estimate_chlorophyll(lat, lon)
 
@@ -158,7 +197,8 @@ async def fetch_pfz_zones(lat: float, lon: float, radius_km: float = 150) -> dic
 
     if is_monsoon:
         result = {
-            "query_lat": lat, "query_lon": lon,
+            "query_lat": lat,
+            "query_lon": lon,
             "zones": [],
             "monsoon_ban": True,
             "advisory_date": now.isoformat(),
@@ -191,21 +231,23 @@ async def fetch_pfz_zones(lat: float, lon: float, radius_km: float = 150) -> dic
             continue
         bearing, bearing_label = _compute_bearing(lat, lon, zlat, zlon)
         intensity = _intensity_from_chlorophyll(chl) if chl else base_intensity
-        zones.append({
-            "id": f"PFZ-{port_name.upper()[:3]}-{i+1:03d}",
-            "lat": zlat,
-            "lon": zlon,
-            "distance_km": round(dist, 1),
-            "bearing_deg": bearing,
-            "bearing_label": bearing_label,
-            "intensity": intensity,
-            "chlorophyll": chl,
-            "sst": 28.0,  # will be enriched by safety router
-            "species": species,
-            "depth_range": depth,
-            "valid_until": (now + timedelta(hours=12)).isoformat(),
-            "source": "INCOIS PFZ Advisory + ERDDAP Chlorophyll",
-        })
+        zones.append(
+            {
+                "id": f"PFZ-{port_name.upper()[:3]}-{i+1:03d}",
+                "lat": zlat,
+                "lon": zlon,
+                "distance_km": round(dist, 1),
+                "bearing_deg": bearing,
+                "bearing_label": bearing_label,
+                "intensity": intensity,
+                "chlorophyll": chl,
+                "sst": 28.0,  # will be enriched by safety router
+                "species": species,
+                "depth_range": depth,
+                "valid_until": (now + timedelta(hours=12)).isoformat(),
+                "source": "INCOIS PFZ Advisory + ERDDAP Chlorophyll",
+            }
+        )
 
     zones.sort(key=lambda z: z["distance_km"])
 

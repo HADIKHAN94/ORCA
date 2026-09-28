@@ -1,7 +1,7 @@
-import React from 'react';
-import { useRole } from '../context/RoleContext';
-import { Wind, Waves, AlertTriangle, CheckCircle, Info } from 'lucide-react';
-import { MarineMap } from '../components/MarineMap';
+import React from "react";
+import { useRole } from "../context/RoleContext";
+import { Wind, Waves, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { MarineMap } from "../components/MarineMap";
 
 export const CommandCenter: React.FC = () => {
   const { role } = useRole();
@@ -11,19 +11,52 @@ export const CommandCenter: React.FC = () => {
       <div className="flex-1 flex flex-col space-y-6">
         <div>
           <h2 className="text-2xl font-bold text-marine-900 flex items-center gap-2">
-            Good Morning, {role === 'Fisherman' ? 'Captain' : role} <span className="text-2xl">👋</span>
+            Good Morning, {role === "Fisherman" ? "Captain" : role}{" "}
+            <span className="text-2xl">👋</span>
           </h2>
-          <p className="text-gray-600 mt-1">Here's your marine overview for today.</p>
+          <p className="text-gray-600 mt-1">
+            Here's your marine overview for today.
+          </p>
         </div>
 
         {/* KPI Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <KPICard title="Marine Risk" value="Low" subtitle="25 / 100" color="text-risk-low" />
-          <KPICard title="Wave Height" value="1.4 m" subtitle="Low" color="text-risk-low" />
-          <KPICard title="Wind Speed" value="18 km/h" subtitle="Moderate" color="text-risk-moderate" />
-          <KPICard title="Sea Surface Temp" value="28.2°C" subtitle="Favourable" color="text-risk-low" />
-          <KPICard title="Nearest PFZ" value="32.4 km" subtitle="Zone B" color="text-marine-600" />
-          <KPICard title="ETA to PFZ" value="1h 42m" subtitle="Optimal route" color="text-marine-600" />
+          <KPICard
+            title="Marine Risk"
+            value="Low"
+            subtitle="25 / 100"
+            color="text-risk-low"
+          />
+          <KPICard
+            title="Wave Height"
+            value="1.4 m"
+            subtitle="Low"
+            color="text-risk-low"
+          />
+          <KPICard
+            title="Wind Speed"
+            value="18 km/h"
+            subtitle="Moderate"
+            color="text-risk-moderate"
+          />
+          <KPICard
+            title="Sea Surface Temp"
+            value="28.2°C"
+            subtitle="Favourable"
+            color="text-risk-low"
+          />
+          <KPICard
+            title="Nearest PFZ"
+            value="32.4 km"
+            subtitle="Zone B"
+            color="text-marine-600"
+          />
+          <KPICard
+            title="ETA to PFZ"
+            value="1h 42m"
+            subtitle="Optimal route"
+            color="text-marine-600"
+          />
         </div>
 
         {/* Main Content Area */}
@@ -31,17 +64,23 @@ export const CommandCenter: React.FC = () => {
           {/* Recommendation Card */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-marine-900">Today's Recommendation</h3>
+              <h3 className="text-lg font-bold text-marine-900">
+                Today's Recommendation
+              </h3>
               <span className="bg-risk-low/10 text-risk-low text-xs px-2.5 py-1 rounded-full font-bold border border-risk-low/20">
                 GO
               </span>
             </div>
-            
+
             <div className="mb-6">
               <h4 className="text-2xl font-bold text-marine-700">PFZ Zone B</h4>
               <div className="flex space-x-2 mt-2">
-                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">High Potential</span>
-                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">Good Safety</span>
+                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">
+                  High Potential
+                </span>
+                <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-medium">
+                  Good Safety
+                </span>
               </div>
             </div>
 
@@ -72,13 +111,15 @@ export const CommandCenter: React.FC = () => {
 
           {/* Map Preview */}
           <div className="bg-white rounded-xl border border-gray-200 p-2 shadow-sm flex flex-col h-80 lg:h-auto">
-             <MarineMap showRoute={true} />
+            <MarineMap showRoute={true} />
           </div>
 
           {/* Evidence Panel */}
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col lg:col-span-2">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-marine-900">Why this Zone?</h3>
+              <h3 className="text-lg font-bold text-marine-900">
+                Why this Zone?
+              </h3>
               <Info className="w-5 h-5 text-gray-400" />
             </div>
 
@@ -93,7 +134,12 @@ export const CommandCenter: React.FC = () => {
 
             <div className="mt-6 pt-4 border-t border-gray-100 text-xs text-gray-500 flex justify-between">
               <span>Updated 12 mins ago</span>
-              <a href="#" className="text-marine-600 font-medium hover:underline">View Data Sources</a>
+              <a
+                href="#"
+                className="text-marine-600 font-medium hover:underline"
+              >
+                View Data Sources
+              </a>
             </div>
           </div>
         </div>
@@ -105,33 +151,51 @@ export const CommandCenter: React.FC = () => {
           <h3 className="font-bold text-marine-900 flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-risk-moderate" /> Alerts
           </h3>
-          <span className="bg-marine-100 text-marine-800 text-xs px-2 py-0.5 rounded-full font-bold">2 Active</span>
+          <span className="bg-marine-100 text-marine-800 text-xs px-2 py-0.5 rounded-full font-bold">
+            2 Active
+          </span>
         </div>
-        
+
         <div className="flex-1 p-4 space-y-4 overflow-y-auto">
           <div className="p-3 bg-green-50 border border-green-100 rounded-lg flex items-start gap-3">
             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-green-900">No critical alerts</p>
-              <p className="text-xs text-green-700 mt-1">Conditions are clear for your recommended route.</p>
+              <p className="text-sm font-semibold text-green-900">
+                No critical alerts
+              </p>
+              <p className="text-xs text-green-700 mt-1">
+                Conditions are clear for your recommended route.
+              </p>
             </div>
           </div>
 
           <div className="p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-start gap-3">
             <Wind className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-amber-900">Moderate Wind Advisory</p>
-              <p className="text-xs text-amber-700 mt-1">Valid for Sector 7 next 4 hours. Wind speeds up to 22 km/h.</p>
-              <p className="text-xs text-gray-500 mt-2 font-medium">Source: INCOIS</p>
+              <p className="text-sm font-semibold text-amber-900">
+                Moderate Wind Advisory
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                Valid for Sector 7 next 4 hours. Wind speeds up to 22 km/h.
+              </p>
+              <p className="text-xs text-gray-500 mt-2 font-medium">
+                Source: INCOIS
+              </p>
             </div>
           </div>
 
           <div className="p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-start gap-3">
             <Waves className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-amber-900">Small Craft Advisory</p>
-              <p className="text-xs text-amber-700 mt-1">Caution advised in offshore zones due to building swells.</p>
-              <p className="text-xs text-gray-500 mt-2 font-medium">Source: IMD</p>
+              <p className="text-sm font-semibold text-amber-900">
+                Small Craft Advisory
+              </p>
+              <p className="text-xs text-amber-700 mt-1">
+                Caution advised in offshore zones due to building swells.
+              </p>
+              <p className="text-xs text-gray-500 mt-2 font-medium">
+                Source: IMD
+              </p>
             </div>
           </div>
         </div>
@@ -140,7 +204,17 @@ export const CommandCenter: React.FC = () => {
   );
 };
 
-const KPICard = ({ title, value, subtitle, color }: { title: string, value: string, subtitle: string, color: string }) => (
+const KPICard = ({
+  title,
+  value,
+  subtitle,
+  color,
+}: {
+  title: string;
+  value: string;
+  subtitle: string;
+  color: string;
+}) => (
   <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
     <p className="text-xs text-gray-500 font-medium mb-2">{title}</p>
     <p className={`text-xl font-bold ${color}`}>{value}</p>

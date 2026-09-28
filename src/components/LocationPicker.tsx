@@ -10,14 +10,20 @@ interface Props {
   isDetecting: boolean;
 }
 
-export function LocationPicker({ location, onSelect, onDetectGPS, isDetecting }: Props) {
+export function LocationPicker({
+  location,
+  onSelect,
+  onDetectGPS,
+  isDetecting,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -26,7 +32,7 @@ export function LocationPicker({ location, onSelect, onDetectGPS, isDetecting }:
   const filtered = INDIAN_COASTAL_CITIES.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.state.toLowerCase().includes(search.toLowerCase())
+      c.state.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -37,7 +43,9 @@ export function LocationPicker({ location, onSelect, onDetectGPS, isDetecting }:
       >
         <MapPin className="w-3.5 h-3.5 text-marine-600 flex-shrink-0" />
         <span className="truncate flex-1 text-left">{location.name}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-gray-400 flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`w-3.5 h-3.5 text-gray-400 flex-shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (
@@ -53,7 +61,10 @@ export function LocationPicker({ location, onSelect, onDetectGPS, isDetecting }:
           </div>
           {/* GPS button */}
           <button
-            onClick={() => { onDetectGPS(); setOpen(false); }}
+            onClick={() => {
+              onDetectGPS();
+              setOpen(false);
+            }}
             disabled={isDetecting}
             className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-marine-700 hover:bg-marine-50 border-b border-gray-100 font-medium disabled:opacity-50"
           >
@@ -64,7 +75,11 @@ export function LocationPicker({ location, onSelect, onDetectGPS, isDetecting }:
             {filtered.map((city) => (
               <button
                 key={city.name}
-                onClick={() => { onSelect(city); setOpen(false); setSearch(""); }}
+                onClick={() => {
+                  onSelect(city);
+                  setOpen(false);
+                  setSearch("");
+                }}
                 className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-marine-50 transition-colors ${location.name === city.name ? "bg-marine-50 text-marine-700 font-medium" : "text-gray-700"}`}
               >
                 <span>{city.name}</span>
@@ -77,4 +92,3 @@ export function LocationPicker({ location, onSelect, onDetectGPS, isDetecting }:
     </div>
   );
 }
-

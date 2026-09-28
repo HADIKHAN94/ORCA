@@ -1,57 +1,57 @@
-import React from 'react';
-import { useRole } from '../context/RoleContext';
-import { 
+import React from "react";
+import { useRole } from "../context/RoleContext";
+import {
   Anchor,
-  Map as MapIcon, 
-  Ship, 
-  Fish, 
-  Activity, 
-  AlertTriangle, 
+  Map as MapIcon,
+  Ship,
+  Fish,
+  Activity,
+  AlertTriangle,
   Microscope,
   FileText,
-  Settings
-} from 'lucide-react';
-import { NavLink } from 'react-router-dom';
-import clsx from 'clsx';
+  Settings,
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
+import clsx from "clsx";
 
 export const Sidebar: React.FC = () => {
   const { role } = useRole();
 
   const getNavigation = () => {
     const baseNav = [
-      { name: 'Command Center', icon: Anchor, path: '/dashboard' },
-      { name: 'Live Map', icon: MapIcon, path: '/map' },
-      { name: 'AI Marine Copilot', icon: Activity, path: '/copilot' },
+      { name: "Command Center", icon: Anchor, path: "/dashboard" },
+      { name: "Live Map", icon: MapIcon, path: "/map" },
+      { name: "AI Marine Copilot", icon: Activity, path: "/copilot" },
     ];
 
-    if (role === 'Fisherman') {
+    if (role === "Fisherman") {
       baseNav.push(
-        { name: 'Fishing Intelligence', icon: Fish, path: '/fishing' },
-        { name: 'Risk & Alerts', icon: AlertTriangle, path: '/alerts' }
+        { name: "Fishing Intelligence", icon: Fish, path: "/fishing" },
+        { name: "Risk & Alerts", icon: AlertTriangle, path: "/alerts" },
       );
-    } else if (role === 'Marine Researcher') {
+    } else if (role === "Marine Researcher") {
       baseNav.push(
-        { name: 'Ocean Analytics', icon: Microscope, path: '/analytics' },
-        { name: 'Research workspace', icon: FileText, path: '/research' }
+        { name: "Ocean Analytics", icon: Microscope, path: "/analytics" },
+        { name: "Research workspace", icon: FileText, path: "/research" },
       );
-    } else if (role === 'Disaster Management') {
+    } else if (role === "Disaster Management") {
       baseNav.push(
-        { name: 'Hazard Intelligence', icon: AlertTriangle, path: '/hazards' },
-        { name: 'Reports', icon: FileText, path: '/reports' }
+        { name: "Hazard Intelligence", icon: AlertTriangle, path: "/hazards" },
+        { name: "Reports", icon: FileText, path: "/reports" },
       );
-    } else if (role === 'Coastal Authority') {
+    } else if (role === "Coastal Authority") {
       baseNav.push(
-        { name: 'Situational Awareness', icon: Activity, path: '/awareness' },
-        { name: 'Restricted Zones', icon: AlertTriangle, path: '/zones' }
+        { name: "Situational Awareness", icon: Activity, path: "/awareness" },
+        { name: "Restricted Zones", icon: AlertTriangle, path: "/zones" },
       );
-    } else if (role === 'Maritime Operator') {
+    } else if (role === "Maritime Operator") {
       baseNav.push(
-        { name: 'Vessel Operations', icon: Ship, path: '/operations' },
-        { name: 'Route Optimization', icon: MapIcon, path: '/routes' }
+        { name: "Vessel Operations", icon: Ship, path: "/operations" },
+        { name: "Route Optimization", icon: MapIcon, path: "/routes" },
       );
     }
 
-    baseNav.push({ name: 'Settings', icon: Settings, path: '/settings' });
+    baseNav.push({ name: "Settings", icon: Settings, path: "/settings" });
     return baseNav;
   };
 
@@ -60,10 +60,18 @@ export const Sidebar: React.FC = () => {
   return (
     <div className="w-64 bg-marine-900 text-white h-screen flex flex-col border-r border-marine-800 flex-shrink-0">
       <div className="p-5 flex items-center space-x-3 border-b border-marine-800">
-        <img src="/orca-logo.svg" alt="ORCA Logo" className="w-10 h-10 object-contain" />
+        <img
+          src="/orca-logo.svg"
+          alt="ORCA Logo"
+          className="w-10 h-10 object-contain"
+        />
         <div>
-          <h1 className="text-lg font-black tracking-widest text-white">ORCA</h1>
-          <p className="text-[10px] text-marine-300 uppercase font-semibold tracking-wide">Marine Intelligence</p>
+          <h1 className="text-lg font-black tracking-widest text-white">
+            ORCA
+          </h1>
+          <p className="text-[10px] text-marine-300 uppercase font-semibold tracking-wide">
+            Marine Intelligence
+          </p>
         </div>
       </div>
 
@@ -74,10 +82,10 @@ export const Sidebar: React.FC = () => {
             to={item.path}
             className={({ isActive }) =>
               clsx(
-                'flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium',
+                "flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
                 isActive
-                  ? 'bg-marine-800 text-marine-200'
-                  : 'text-gray-300 hover:bg-marine-800 hover:text-white'
+                  ? "bg-marine-800 text-marine-200"
+                  : "text-gray-300 hover:bg-marine-800 hover:text-white",
               )
             }
           >

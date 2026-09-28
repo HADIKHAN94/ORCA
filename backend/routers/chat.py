@@ -9,13 +9,19 @@ from sqlalchemy.orm import Session
 import asyncio
 from dotenv import load_dotenv
 
-_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '.env')
+_env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
 load_dotenv(dotenv_path=_env_path, override=True)
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
-MODELS = ["gemma-4-26b-a4b-it", "gemma-4-31b-it", "gemini-3.8-flash", "gemini-3.7-flash"]
+MODELS = [
+    "gemma-4-26b-a4b-it",
+    "gemma-4-31b-it",
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+]
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
 
 class ChatRequest(BaseModel):
     message: str
@@ -25,8 +31,15 @@ class ChatRequest(BaseModel):
     lang: str = "en"
     user_id: int = None
 
+
 def build_system_prompt(req: ChatRequest) -> str:
-    lang_names = {"en": "English", "hi": "Hindi", "mr": "Marathi", "te": "Telugu", "ta": "Tamil"}
+    lang_names = {
+        "en": "English",
+        "hi": "Hindi",
+        "mr": "Marathi",
+        "te": "Telugu",
+        "ta": "Tamil",
+    }
     lang_name = lang_names.get(req.lang, "English")
 
     return f"""You are ORCA - an expert AI Marine Intelligence Assistant for Indian fishermen.
@@ -43,8 +56,11 @@ CONTEXT:
 {req.context}
 """
 
+
 @router.post("")
-async def chat_endpoint(req: ChatRequest, request: Request, session: Session = Depends(db.get_db)):
+async def chat_endpoint(
+    req: ChatRequest, request: Request, session: Session = Depends(db.get_db)
+):
     if not GEMINI_API_KEY:
         raise HTTPException(status_code=500, detail="Gemini API Key not configured")
 
@@ -52,7 +68,9 @@ async def chat_endpoint(req: ChatRequest, request: Request, session: Session = D
 
     chat_log = None
     if req.user_id:
-        chat_log = db.ChatHistory(user_id=req.user_id, message=req.message, lat=req.lat, lon=req.lon)
+        chat_log = db.ChatHistory(
+            user_id=req.user_id, message=req.message, lat=req.lat, lon=req.lon
+        )
         session.add(chat_log)
         session.commit()
 
@@ -62,8 +80,11 @@ async def chat_endpoint(req: ChatRequest, request: Request, session: Session = D
 
         for model_name in MODELS:
             try:
+
                 def do_stream(m=model_name):
-                    return client.models.generate_content_stream(model=m, contents=prompt)
+                    return client.models.generate_content_stream(
+                        model=m, contents=prompt
+                    )
 
                 stream = await asyncio.to_thread(do_stream)
                 full_response = ""
@@ -84,13 +105,15 @@ async def chat_endpoint(req: ChatRequest, request: Request, session: Session = D
             except Exception as e:
                 last_error = str(e)
                 if full_response:
-                    yield {"data": json.dumps(f"\n\n⚠️ **[Connection interrupted: {last_error[:60]}]**")}
+                    yield {
+                        "data": json.dumps(
+                            f"\n\n⚠️ **[Connection interrupted: {last_error[:60]}]**"
+                        )
+                    }
                     return
                 continue
-        
+
         err_msg = f"⚠️ **ORCA AI Error:** Google API Overload. Try again later. ({last_error[:80]})"
         yield {"data": json.dumps(err_msg)}
 
     return EventSourceResponse(event_generator())
-
-

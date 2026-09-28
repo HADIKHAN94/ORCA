@@ -8,7 +8,8 @@ export function useOceanData(lat: number, lon: number) {
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       const result = await api.ocean(lat, lon);
       setData(result);
@@ -19,7 +20,8 @@ export function useOceanData(lat: number, lon: number) {
     }
   }, [lat, lon]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
   return { data, loading, error, refetch: fetch };
 }
-

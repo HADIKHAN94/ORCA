@@ -8,15 +8,19 @@ export function useSafety(lat: number, lon: number, vesselType = "mechanized") {
   const [error, setError] = useState<string | null>(null);
 
   const fetch = useCallback(async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       setData(await api.safety(lat, lon, vesselType));
     } catch (e: any) {
       setError(e.message);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, [lat, lon, vesselType]);
 
-  useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
   return { data, loading, error, refetch: fetch };
 }
-

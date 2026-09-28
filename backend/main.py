@@ -3,6 +3,7 @@
 FastAPI entry point for ORCA Marine Intelligence Platform.
 Run: uvicorn main:app --reload --port 8000
 """
+
 import asyncio
 from fastapi import FastAPI
 from db import Base, engine
@@ -65,5 +66,3 @@ async def root():
 @app.get("/health")
 async def health():
     return {"status": "ok"}
-
-

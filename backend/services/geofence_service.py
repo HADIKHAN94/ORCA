@@ -5,6 +5,7 @@ IMBL (International Maritime Boundary Line) and EEZ coordinates
 are based on official India-Pakistan, India-Sri Lanka, India-Maldives,
 India-Bangladesh, India-Myanmar treaties.
 """
+
 from shapely.geometry import Point, Polygon
 from geopy.distance import geodesic
 import math
@@ -24,11 +25,11 @@ INDIA_EEZ_COORDS = [
     (14.0, 68.0),
     (12.0, 69.0),
     (10.0, 70.0),
-    (8.5,  71.0),
-    (7.5,  74.5),   # southern tip
+    (8.5, 71.0),
+    (7.5, 74.5),  # southern tip
     # East coast — Bay of Bengal (south to north)
-    (7.5,  81.0),
-    (8.5,  82.5),
+    (7.5, 81.0),
+    (8.5, 82.5),
     (10.0, 84.0),
     (11.0, 85.5),
     (12.0, 86.5),
@@ -38,9 +39,9 @@ INDIA_EEZ_COORDS = [
     (18.0, 89.0),
     (20.0, 89.0),
     (21.5, 89.5),
-    (23.0, 90.5),   # Bangladesh area
+    (23.0, 90.5),  # Bangladesh area
     (23.5, 91.5),
-    (23.8, 63.5),   # close polygon
+    (23.8, 63.5),  # close polygon
 ]
 
 # ── India Territorial Waters (12nm from baseline) ─────────────────
@@ -55,10 +56,10 @@ INDIA_TERRITORIAL_COORDS = [
     (14.0, 73.0),
     (12.0, 74.0),
     (10.0, 75.5),
-    (8.5,  76.8),
-    (7.5,  77.5),
-    (7.5,  79.5),
-    (8.5,  80.5),
+    (8.5, 76.8),
+    (7.5, 77.5),
+    (7.5, 79.5),
+    (8.5, 80.5),
     (10.0, 81.5),
     (12.0, 82.5),
     (14.0, 83.5),
@@ -110,10 +111,13 @@ def _dist_to_line_segment(pt, p1, p2) -> float:
     return min(
         geodesic(pt, p1).km,
         geodesic(pt, p2).km,
-        geodesic(pt, (
-            (p1[0] + p2[0]) / 2,
-            (p1[1] + p2[1]) / 2,
-        )).km
+        geodesic(
+            pt,
+            (
+                (p1[0] + p2[0]) / 2,
+                (p1[1] + p2[1]) / 2,
+            ),
+        ).km,
     )
 
 
@@ -124,12 +128,12 @@ def _distance_to_imbl(lat: float, lon: float) -> float:
     min_dist = float("inf")
     pt = (lat, lon)
     for i in range(len(all_imbl) - 1):
-        d = _dist_to_line_segment(pt, all_imbl[i], all_imbl[i+1])
+        d = _dist_to_line_segment(pt, all_imbl[i], all_imbl[i + 1])
         if d < min_dist:
             min_dist = d
     # Also check distance to EEZ boundary
     for i in range(len(INDIA_EEZ_COORDS) - 1):
-        d = _dist_to_line_segment(pt, INDIA_EEZ_COORDS[i], INDIA_EEZ_COORDS[i+1])
+        d = _dist_to_line_segment(pt, INDIA_EEZ_COORDS[i], INDIA_EEZ_COORDS[i + 1])
         if d < min_dist:
             min_dist = d
     return round(min_dist, 1)
@@ -155,26 +159,32 @@ def check_geofence(lat: float, lon: float) -> dict:
 
     # EEZ boundary distance (approximate — dist to nearest EEZ polygon edge)
     dist_eez = round(
-        geodesic((lat, lon), min(
-            INDIA_EEZ_COORDS,
-            key=lambda p: geodesic((lat, lon), p).km
-        )).km, 1
+        geodesic(
+            (lat, lon), min(INDIA_EEZ_COORDS, key=lambda p: geodesic((lat, lon), p).km)
+        ).km,
+        1,
     )
 
     warning = None
     safe = True
 
     if not inside_eez:
-        warning = ("⚠️ OUTSIDE INDIA EEZ — You are in international waters. "
-                   "Unauthorized fishing is prohibited. Return to Indian waters immediately.")
+        warning = (
+            "⚠️ OUTSIDE INDIA EEZ — You are in international waters. "
+            "Unauthorized fishing is prohibited. Return to Indian waters immediately."
+        )
         safe = False
     elif dist_imbl < 30:
-        warning = (f"⚠️ APPROACHING MARITIME BOUNDARY — {dist_imbl:.0f}km from IMBL. "
-                   f"Do NOT cross the boundary. Return south immediately.")
+        warning = (
+            f"⚠️ APPROACHING MARITIME BOUNDARY — {dist_imbl:.0f}km from IMBL. "
+            f"Do NOT cross the boundary. Return south immediately."
+        )
         safe = False
     elif dist_imbl < 60:
-        warning = (f"⚠️ CAUTION — {dist_imbl:.0f}km from maritime boundary. "
-                   f"Stay aware of your position and do not proceed further north/west.")
+        warning = (
+            f"⚠️ CAUTION — {dist_imbl:.0f}km from maritime boundary. "
+            f"Stay aware of your position and do not proceed further north/west."
+        )
         safe = True  # caution but not danger
 
     return {

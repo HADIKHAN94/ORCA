@@ -4,6 +4,7 @@ Fetches live ocean + weather data from Open-Meteo (no auth required).
 Marine API: wave, SST, swell, currents.
 Weather API: wind, temperature.
 """
+
 import asyncio
 import httpx
 from datetime import datetime, timezone
@@ -20,14 +21,29 @@ MARINE_VARS = (
 )
 
 WEATHER_VARS = (
-    "wind_speed_10m,wind_direction_10m,"
-    "visibility,precipitation_probability"
+    "wind_speed_10m,wind_direction_10m," "visibility,precipitation_probability"
 )
 
 
 def _bearing_to_label(deg: float) -> str:
-    dirs = ["N","NNE","NE","ENE","E","ESE","SE","SSE",
-            "S","SSW","SW","WSW","W","WNW","NW","NNW"]
+    dirs = [
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
+    ]
     return dirs[round(deg / 22.5) % 16]
 
 
@@ -49,27 +65,31 @@ async def fetch_ocean_conditions(lat: float, lon: float) -> dict:
         return ocean_cache[key]
 
     async with httpx.AsyncClient(timeout=15.0) as client:
-        marine_task = client.get(MARINE_URL, params={
-            "latitude": lat,
-            "longitude": lon,
-            "hourly": MARINE_VARS,
-            "current": MARINE_VARS,
-            "timezone": "Asia/Kolkata",
-            "forecast_days": 2
-        })
-        weather_task = client.get(WEATHER_URL, params={
-            "latitude": lat,
-            "longitude": lon,
-            "hourly": WEATHER_VARS,
-            "current": WEATHER_VARS,
-            "wind_speed_unit": "kmh",
-            "timezone": "Asia/Kolkata",
-            "forecast_days": 2
-        })
-
-        marine_resp, weather_resp = await asyncio.gather(
-            marine_task, weather_task
+        marine_task = client.get(
+            MARINE_URL,
+            params={
+                "latitude": lat,
+                "longitude": lon,
+                "hourly": MARINE_VARS,
+                "current": MARINE_VARS,
+                "timezone": "Asia/Kolkata",
+                "forecast_days": 2,
+            },
         )
+        weather_task = client.get(
+            WEATHER_URL,
+            params={
+                "latitude": lat,
+                "longitude": lon,
+                "hourly": WEATHER_VARS,
+                "current": WEATHER_VARS,
+                "wind_speed_unit": "kmh",
+                "timezone": "Asia/Kolkata",
+                "forecast_days": 2,
+            },
+        )
+
+        marine_resp, weather_resp = await asyncio.gather(marine_task, weather_task)
 
     marine = marine_resp.json()
     weather = weather_resp.json()
@@ -87,12 +107,14 @@ async def fetch_ocean_conditions(lat: float, lon: float) -> dict:
     times = m_hourly.get("time", [])[:24]
     forecast = []
     for i, t in enumerate(times):
-        forecast.append({
-            "hour": t[11:16],  # HH:MM
-            "wave_height": round(m_hourly.get("wave_height", [0])[i] or 0, 1),
-            "wind_speed": round(w_hourly.get("wind_speed_10m", [0])[i] or 0, 1),
-            "sst": round(m_hourly.get("sea_surface_temperature", [28])[i] or 28, 1),
-        })
+        forecast.append(
+            {
+                "hour": t[11:16],  # HH:MM
+                "wave_height": round(m_hourly.get("wave_height", [0])[i] or 0, 1),
+                "wind_speed": round(w_hourly.get("wind_speed_10m", [0])[i] or 0, 1),
+                "sst": round(m_hourly.get("sea_surface_temperature", [28])[i] or 28, 1),
+            }
+        )
 
     result = {
         "lat": lat,
@@ -116,4 +138,3 @@ async def fetch_ocean_conditions(lat: float, lon: float) -> dict:
 
     ocean_cache[key] = result
     return result
-

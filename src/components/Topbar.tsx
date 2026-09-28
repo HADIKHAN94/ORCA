@@ -1,18 +1,21 @@
-﻿import React, { useState } from 'react';
-import { Bell, Globe, User, Navigation, ShieldAlert } from 'lucide-react';
-import { useRole } from '../context/RoleContext';
-import { LocationPicker } from './LocationPicker';
-import { useAlerts } from '../hooks/useAlerts';
+﻿import React, { useState } from "react";
+import { Bell, Globe, User, Navigation, ShieldAlert } from "lucide-react";
+import { useRole } from "../context/RoleContext";
+import { LocationPicker } from "./LocationPicker";
+import { useAlerts } from "../hooks/useAlerts";
 
 export const Topbar: React.FC = () => {
   const { role, location, setLocation } = useRole();
   const { data: alertsData } = useAlerts(location.lat, location.lon);
   const [isDetecting, setIsDetecting] = useState(false);
-  const [sosStatus, setSosStatus] = useState<'IDLE' | 'SENDING' | 'SENT'>('IDLE');
+  const [sosStatus, setSosStatus] = useState<"IDLE" | "SENDING" | "SENT">(
+    "IDLE",
+  );
 
-  const criticalCount = alertsData?.alerts.filter(
-    (a) => a.severity === 'CRITICAL' || a.severity === 'WARNING'
-  ).length ?? 0;
+  const criticalCount =
+    alertsData?.alerts.filter(
+      (a) => a.severity === "CRITICAL" || a.severity === "WARNING",
+    ).length ?? 0;
 
   const detectGPS = () => {
     if (!navigator.geolocation) return;
@@ -20,30 +23,41 @@ export const Topbar: React.FC = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        setLocation({ name: 'My GPS Location', lat: latitude, lon: longitude, state: 'GPS' });
+        setLocation({
+          name: "My GPS Location",
+          lat: latitude,
+          lon: longitude,
+          state: "GPS",
+        });
         setIsDetecting(false);
       },
       () => setIsDetecting(false),
-      { timeout: 8000 }
+      { timeout: 8000 },
     );
   };
 
   const triggerSOS = async () => {
     if (confirm("EMERGENCY: Are you sure you want to broadcast an SOS?")) {
-      setSosStatus('SENDING');
+      setSosStatus("SENDING");
       try {
-        const res = await fetch('http://127.0.0.1:8000/api/sos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lat: location.lat, lon: location.lon, user_id: 1 })
+        const res = await fetch("http://127.0.0.1:8000/api/sos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lat: location.lat,
+            lon: location.lon,
+            user_id: 1,
+          }),
         });
         const data = await res.json();
         alert(`SOS Triggered!\n\n${data.message}`);
-        setSosStatus('SENT');
-        setTimeout(() => setSosStatus('IDLE'), 10000);
+        setSosStatus("SENT");
+        setTimeout(() => setSosStatus("IDLE"), 10000);
       } catch {
-        alert("Failed to connect to SOS server. Use VHF Channel 16 immediately!");
-        setSosStatus('IDLE');
+        alert(
+          "Failed to connect to SOS server. Use VHF Channel 16 immediately!",
+        );
+        setSosStatus("IDLE");
       }
     }
   };
@@ -64,20 +78,24 @@ export const Topbar: React.FC = () => {
       </div>
 
       <div className="flex items-center space-x-5">
-        <button 
+        <button
           onClick={triggerSOS}
-          disabled={sosStatus === 'SENDING'}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${sosStatus === 'IDLE' ? 'bg-red-100 text-red-700 hover:bg-red-200 border border-red-200' : sosStatus === 'SENDING' ? 'bg-red-500 text-white animate-pulse' : 'bg-green-100 text-green-700 border-green-200'}`}
+          disabled={sosStatus === "SENDING"}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${sosStatus === "IDLE" ? "bg-red-100 text-red-700 hover:bg-red-200 border border-red-200" : sosStatus === "SENDING" ? "bg-red-500 text-white animate-pulse" : "bg-green-100 text-green-700 border-green-200"}`}
         >
           <ShieldAlert className="w-4 h-4" />
-          {sosStatus === 'IDLE' ? 'EMERGENCY SOS' : sosStatus === 'SENDING' ? 'BROADCASTING...' : 'HELP DISPATCHED'}
+          {sosStatus === "IDLE"
+            ? "EMERGENCY SOS"
+            : sosStatus === "SENDING"
+              ? "BROADCASTING..."
+              : "HELP DISPATCHED"}
         </button>
 
         <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600 cursor-pointer hover:text-marine-600 transition-colors">
           <Globe className="w-4 h-4" />
           <span>English</span>
         </div>
-        
+
         <button className="relative text-gray-500 hover:text-marine-600 transition-colors">
           <Bell className="w-5 h-5" />
           {criticalCount > 0 && (
